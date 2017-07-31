@@ -75,7 +75,7 @@ class App:
         self.image.thumbnail ((1024, 768), Image.ANTIALIAS)
 
         photo = ImageTk.PhotoImage(self.image)
-        self.imlabel = Label (self.imframe, image=photo, height=800, width=768)
+        self.imlabel = Label (self.imframe, image=photo)
         self.imlabel.image = photo
         self.imlabel.pack(side=BOTTOM)
         if self.oldimlabel is not None:
