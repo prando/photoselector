@@ -9,12 +9,15 @@ class App:
     def __init__(self, master):
 
         self.curimage = None
+        self.oldimlabel = None
+        self.oldtxtlabel = None
         self.curimgidx = 0
 
         self.loaded = []
         self.selected = []
         self.rejected = []
         self.tentative = []
+        self.textstring = StringVar()
 
         self.file_path_str = []
 
@@ -42,11 +45,12 @@ class App:
         self.rotatebutton = Button (self.frame, text="ROTATE", command=self.rotatepic)
         self.rotatebutton.pack(side=LEFT)
 
-        self.oldlabel = None
+        self.txtlabel = Label (self.imframe, textvar=self.textstring)
+        self.txtlabel.pack(side=BOTTOM)
 
     def quitprog (self):
         for f in self.selected:
-            print f
+            print (f)
         self.frame.quit()
 
     def selectpic (self):
@@ -62,24 +66,25 @@ class App:
 
     def showimage (self):
 
-        width, height = self.image.size
-        ratio = height/float (width)
-        targetwidth = 500
-        targetheight = int (targetwidth * ratio)
+        #width, height = self.image.size
+        #ratio = height/float (width)
+        #width = 800
+        #height = int (width * ratio)
 
-        self.image = self.image.resize((targetwidth, targetheight), Image.ANTIALIAS)
+        #self.image = self.image.resize ((width, height), Image.ANTIALIAS)
+        self.image.thumbnail ((1024, 768), Image.ANTIALIAS)
 
         photo = ImageTk.PhotoImage(self.image)
-        self.label = Label (self.imframe, image=photo)
-        self.label.image = photo
-        self.label.pack(side=BOTTOM)
-        if self.oldlabel is not None:
-            self.oldlabel.destroy()
-        self.oldlabel = self.label
+        self.imlabel = Label (self.imframe, image=photo, height=800, width=768)
+        self.imlabel.image = photo
+        self.imlabel.pack(side=BOTTOM)
+        if self.oldimlabel is not None:
+            self.oldimlabel.destroy()
+        self.oldimlabel = self.imlabel
 
     def rotatepic(self):
         if (self.curimage is None):
-            tkMessageBox.showinfo("Error", "Load images first!")
+            tkMessageBox.showinfo ("Error", "Load images first!")
             return
 
         self.image = self.image.rotate(90)
@@ -87,7 +92,7 @@ class App:
 
     def previouspic (self):
         if (self.curimage is None):
-            tkMessageBox.showinfo("Error", "Load images first!")
+            tkMessageBox.showinfo ("Error", "Load images first!")
             return
 
         if (self.curimgidx - 1 >= 0):
@@ -95,8 +100,9 @@ class App:
             self.curimgidx = self.curimgidx - 1
             self.image = Image.open (str(self.curimage))
             self.showimage ()
+            self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
         else:
-            tkMessageBox.showinfo("Warning", "No previous images")
+            tkMessageBox.showinfo ("Warning", "No previous images")
         return
 
     def nextpic (self):
@@ -108,28 +114,35 @@ class App:
             self.curimage = self.loaded [self.curimgidx + 1]
             self.curimgidx = self.curimgidx + 1
             self.image = Image.open (str(self.curimage))
+            self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
             self.showimage ()
         else:
             tkMessageBox.showinfo("Warning", "End of dir reached")
 
     def loadpic (self):
 
-        self.file_path_str = tkFileDialog.askdirectory()
-        self.loaded = [os.path.join(self.file_path_str,f) for f in os.listdir (self.file_path_str) if (f.lower().endswith('jpg') or f.lower().endswith ('jpeg')) ]
+        self.file_path_str = tkFileDialog.askdirectory (title='Choose image dir')
+        if not self.file_path_str:
+            tkMessageBox.showinfo("Error", "Choose valid dir")
+            return 
+
+        self.loaded = [os.path.join (self.file_path_str, f) for f in os.listdir (self.file_path_str) if (f.lower().endswith ('gif') or
+                    f.lower().endswith ('bmp') or f.lower().endswith ('jpg') or
+                    f.lower().endswith ('jpeg')) ]
         self.loadedsize = len (self.loaded)
         self.curimgidx = 0
         if self.loadedsize is 0:
-            tkMessageBox.showinfo("Warning", "Empty dir; no images")
+            tkMessageBox.showinfo ("Warning", "Empty dir; no images")
         else:
             self.curimage = self.loaded [self.curimgidx]
             self.image = Image.open (str(self.curimage))
+            self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
             self.showimage ()
-            tkMessageBox.showinfo("Warning", "Dir Loaded with %d images!" % self.loadedsize)
+            tkMessageBox.showinfo ("Message", "Dir Loaded with %d images!" % self.loadedsize)
 
 
 root = Tk()
+root.wm_title ("Photo Manager")
 app = App (root)
 
 root.mainloop()
-
-
