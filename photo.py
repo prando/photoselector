@@ -20,6 +20,7 @@ class App:
         self.textstring = StringVar()
 
         self.file_path_str = []
+        self.out_file_path_str = []
 
         self.frame = Frame (master)
         self.frame.pack()
@@ -49,9 +50,16 @@ class App:
         self.txtlabel.pack(side=BOTTOM)
 
     def quitprog (self):
-        for f in self.selected:
-            print (f)
-        self.frame.quit()
+        if self.selected:
+            self.out_file_path_str = tkFileDialog.askdirectory (title='Choose target dir to store selected files')
+            if not self.out_file_path_str:
+                tkMessageBox.showinfo("Error", "Choose valid dir")
+                return
+            self.out_file_path_str = os.path.join (self.out_file_path_str, 'selected_photos.txt')
+            with open (self.out_file_path_str, "a") as f:
+                for n in self.selected:
+                    f.write (n+"\n")
+        self.frame.quit ()
 
     def selectpic (self):
 
