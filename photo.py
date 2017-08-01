@@ -7,27 +7,38 @@ from PIL import Image, ImageTk
 
 class App:
     def __init__(self, master):
-
+        
+        # Set NULL references to image & label objects at APP init
         self.curimage = None
         self.oldimlabel = None
         self.oldtxtlabel = None
         self.curimgidx = 0
-
+        
+        # Initialize empty lists to denote loaded, selected, rejected images
         self.loaded = []
         self.selected = []
         self.rejected = []
         self.tentative = []
+        # Use a string var and anchor it to a text label. Any change to string var will 
+        # be displayed by the text label. 
         self.textstring = StringVar()
-
+        
+        # Image load path
         self.file_path_str = []
+        # Selected image list file path
         self.out_file_path_str = []
-
+        
+        # Setup a frame (child of master) to display buttons
         self.frame = Frame (master)
+        # Show frame. 
         self.frame.pack()
-
+        
+        # Setup a frame (child of Frame) to display image
         self.imframe = Frame (self.frame)
+        # Show frame. 
         self.imframe.pack(side=BOTTOM)
-
+    
+        # Setup buttons with actions triggering command=$$$ function.
         self.loadbutton = Button (self.frame, text="LOAD", command=self.loadpic)
         self.loadbutton.pack(side=LEFT)
 
@@ -45,11 +56,14 @@ class App:
 
         self.rotatebutton = Button (self.frame, text="ROTATE", command=self.rotatepic)
         self.rotatebutton.pack(side=LEFT)
-
+        
+        # Setup a text label to show display image index and anchor it to a string var. 
         self.txtlabel = Label (self.imframe, textvar=self.textstring)
         self.txtlabel.pack(side=BOTTOM)
-
+    
+    # Quit button action. 
     def quitprog (self):
+        # If selected list is not empty, prompt user for location to save list of selected images & append to it. 
         if self.selected:
             self.out_file_path_str = tkFileDialog.askdirectory (title='Choose target dir to store selected files')
             if not self.out_file_path_str:
@@ -59,19 +73,22 @@ class App:
             with open (self.out_file_path_str, "a") as f:
                 for n in self.selected:
                     f.write (n+"\n")
+                    
+        # Quit program. 
         self.frame.quit ()
-
+    
+    # Select button action. 
     def selectpic (self):
-
+        # Handle error condition: No images loaded yet. 
         if (self.curimage is None):
             tkMessageBox.showinfo("Error", "Load images first!")
             return
-
+        # If selected, add to list if not previously added. 
         if self.curimage not in self.selected:
             self.selected.append(self.curimage)
         else:
             tkMessageBox.showinfo("Warning", "Already selected!")
-
+    
     def showimage (self):
 
         #width, height = self.image.size
