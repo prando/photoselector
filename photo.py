@@ -67,7 +67,7 @@ class App:
         if self.selected:
             self.out_file_path_str = tkFileDialog.askdirectory (title='Choose target dir to store selected files')
             if not self.out_file_path_str:
-                tkMessageBox.showinfo("Error", "Choose valid dir")
+                tkMessageBox.showerror ("Error", "Choose valid dir")
                 return
             self.out_file_path_str = os.path.join (self.out_file_path_str, 'selected_photos.txt')
             with open (self.out_file_path_str, "a") as f:
@@ -81,13 +81,13 @@ class App:
     def selectpic (self):
         # Handle error condition: No images loaded yet. 
         if (self.curimage is None):
-            tkMessageBox.showinfo("Error", "Load images first!")
+            tkMessageBox.showerror ("Error", "Load images first!")
             return
         # If selected, add to list if not previously added. 
         if self.curimage not in self.selected:
             self.selected.append(self.curimage)
         else:
-            tkMessageBox.showinfo("Warning", "Already selected!")
+            tkMessageBox.showwarning("Warning", "Already selected!")
     
     def showimage (self):
 
@@ -109,7 +109,7 @@ class App:
 
     def rotatepic(self):
         if (self.curimage is None):
-            tkMessageBox.showinfo ("Error", "Load images first!")
+            tkMessageBox.showerror ("Error", "Load images first!")
             return
 
         self.image = self.image.rotate(90)
@@ -117,9 +117,9 @@ class App:
 
     def previouspic (self):
         if (self.curimage is None):
-            tkMessageBox.showinfo ("Error", "Load images first!")
+            tkMessageBox.showerror ("Error", "Load images first!")
             return
-
+        # Check for valid bounds of image list. 
         if (self.curimgidx - 1 >= 0):
             self.curimage = self.loaded [self.curimgidx - 1]
             self.curimgidx = self.curimgidx - 1
@@ -127,12 +127,12 @@ class App:
             self.showimage ()
             self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
         else:
-            tkMessageBox.showinfo ("Warning", "No previous images")
+            tkMessageBox.showwarning ("Warning", "No previous images")
         return
 
     def nextpic (self):
         if (self.curimage is None):
-            tkMessageBox.showinfo("Error", "Load images first!")
+            tkMessageBox.showerror ("Error", "Load images first!")
             return
 
         if (self.curimgidx + 1 < self.loadedsize):
@@ -142,13 +142,13 @@ class App:
             self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
             self.showimage ()
         else:
-            tkMessageBox.showinfo("Warning", "End of dir reached")
+            tkMessageBox.showwarning ("Warning", "End of dir reached")
 
     def loadpic (self):
 
         self.file_path_str = tkFileDialog.askdirectory (title='Choose image dir')
         if not self.file_path_str:
-            tkMessageBox.showinfo("Error", "Choose valid dir")
+            tkMessageBox.showerror ("Error", "Choose valid dir")
             return 
 
         self.loaded = [os.path.join (self.file_path_str, f) for f in os.listdir (self.file_path_str) if (f.lower().endswith ('gif') or
@@ -157,13 +157,13 @@ class App:
         self.loadedsize = len (self.loaded)
         self.curimgidx = 0
         if self.loadedsize is 0:
-            tkMessageBox.showinfo ("Warning", "Empty dir; no images")
+            tkMessageBox.showwarning ("Warning", "Empty dir; no images")
         else:
             self.curimage = self.loaded [self.curimgidx]
-            self.image = Image.open (str(self.curimage))
-            self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
+            self.image = Image.open (str (self.curimage))
+            self.textstring.set (str (self.curimgidx + 1) + "/" + str (self.loadedsize))
             self.showimage ()
-            tkMessageBox.showinfo ("Message", "Dir Loaded with %d images!" % self.loadedsize)
+            tkMessageBox.showinfo ("Info", "Loaded %d images!" % self.loadedsize)
 
 
 root = Tk()
