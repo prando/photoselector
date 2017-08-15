@@ -1,6 +1,16 @@
-from Tkinter import *
-import tkMessageBox
-import tkFileDialog
+try:
+    from Tkinter import *
+except ImportError:
+    from tkinter import *
+try:
+    import tkMessageBox
+except ImportError:
+    from tkinter import messagebox as tkMessageBox
+try:
+    import tkFileDialog
+except ImportError:
+    from tkinter import filedialog as tkFileDialog
+
 import os
 
 from PIL import Image, ImageTk
