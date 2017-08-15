@@ -69,8 +69,7 @@ class App:
         # Setup a text label to show display image index and anchor it to a string var.
         self.txtlabel = Label (self.imframe, textvar=self.textstring)
         self.txtlabel.pack(side=BOTTOM)
-        
-        # Note that the default pic is un-rotated. Used to toggle thumbnail
+
         self.rotated = 0
     # Quit button action.
     def quitprog (self):
