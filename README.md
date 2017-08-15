@@ -6,7 +6,7 @@ Our wedding photographer gave us 2,957 photographs after our wedding and we had 
 This app enables selecting photos from a dir and listing them for further processing. 
 
 # how
-* Requires Python 2.7 (TKinter is the standard Py interface to Tk GUI toolkit).
+* Requires Python 2.7 or greater (TKinter is the standard Py interface to Tk GUI toolkit).
 * Install <a href="http://pillow.readthedocs.io/en/3.4.x/installation.html#windows-installation"> pillow </a> (Python Imaging Library) for your platform (Mac/Linux/Windows). 
 * To Run, from terminal: `python photo.py`
 
