@@ -10,5 +10,5 @@ This app enables selecting photos from a dir and listing them for further proces
 * Install <a href="http://pillow.readthedocs.io/en/3.4.x/installation.html#windows-installation"> pillow </a> (Python Imaging Library) for your platform (Mac/Linux/Windows). 
 * To Run, from terminal: `python photo.py`
 
-# psst..
+# psst!
 Hit me with enhancement requests & bug reports. 
