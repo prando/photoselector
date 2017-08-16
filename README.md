@@ -12,3 +12,6 @@ This app enables selecting photos from a dir and listing them for further proces
 
 # psst!
 Hit me with enhancement requests & bug reports. 
+
+# license
+See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
