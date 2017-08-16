@@ -82,6 +82,7 @@ class App:
         
         # Note that the default pic is un-rotated. Used to toggle thumbnail
         self.rotated = 0
+
     # Quit button action.
     def quitprog (self):
         # If selected list is not empty, prompt user for location to save list of selected images & append to it.
@@ -105,10 +106,15 @@ class App:
             tkMessageBox.showerror ("Error", "Load images first!")
             return
         # If selected, add to list if not previously added.
-        if self.curimage not in self.selected:
-            self.selected.append(self.curimage)
+        if self.selectbutton ["text"] == "SELECT":
+            if self.curimage not in self.selected:
+                self.selected.append (self.curimage)
+                self.selectbutton ["text"] = "UNSELECT"
+            else:
+                tkMessageBox.showwarning("Warning", "Already selected!")
         else:
-            tkMessageBox.showwarning("Warning", "Already selected!")
+            self.selected.remove (self.curimage)
+            self.selectbutton ["text"] = "SELECT"
 
     def showimage (self):
 
@@ -153,6 +159,10 @@ class App:
         self.image = Image.open (str(self.curimage))
         self.showimage ()
         self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
+        if self.curimage not in self.selected:
+            self.selectbutton ["text"] = "SELECT"
+        else:
+            self.selectbutton ["text"] = "UNSELECT"
 
     def lastpic (self):
         if (self.curimage is None):
@@ -164,6 +174,10 @@ class App:
         self.image = Image.open (str(self.curimage))
         self.showimage ()
         self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
+        if self.curimage not in self.selected:
+            self.selectbutton ["text"] = "SELECT"
+        else:
+            self.selectbutton ["text"] = "UNSELECT"
 
     def previouspic (self):
         if (self.curimage is None):
@@ -176,6 +190,11 @@ class App:
             self.image = Image.open (str(self.curimage))
             self.showimage ()
             self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
+            if self.curimage not in self.selected:
+                self.selectbutton ["text"] = "SELECT"
+            else:
+                self.selectbutton ["text"] = "UNSELECT"
+
         else:
             tkMessageBox.showwarning ("Warning", "No previous images")
         return
@@ -192,6 +211,11 @@ class App:
             self.image = Image.open (str(self.curimage))
             self.showimage ()
             self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
+            if self.curimage not in self.selected:
+                self.selectbutton ["text"] = "SELECT"
+            else:
+                self.selectbutton ["text"] = "UNSELECT"
+
         else:
             tkMessageBox.showwarning ("Warning", "End of dir reached")
 
