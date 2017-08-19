@@ -32,6 +32,7 @@ class App:
         # Use a string var and anchor it to a text label. Any change to string var will
         # be displayed by the text label.
         self.textstring = StringVar()
+        self.photoindex = StringVar()
 
         # Image load path
         self.file_path_str = []
@@ -44,9 +45,14 @@ class App:
         self.frame.pack()
 
         # Setup a frame (child of Frame) to display image
-        self.imframe = Frame (self.frame)
+        self.imframe = Frame (self.frame, relief=SUNKEN)
         # Show frame.
         self.imframe.pack(side=BOTTOM)
+
+        # Setup a frame (child of imrame) to display image
+        self.txtboxframe = Frame (self.imframe, relief=SUNKEN)
+        # Show frame.
+        self.txtboxframe.pack(side=BOTTOM)
 
         # Setup buttons with actions triggering command=$$$ function.
         self.loadbutton = Button (self.frame, text="LOAD", command=self.loadpic)
@@ -59,9 +65,9 @@ class App:
         self.lastbutton.pack(side=LEFT)
 
         self.quitbutton = Button (self.frame, text="QUIT", command=self.quitprog)
-        self.quitbutton.pack(side=LEFT)
+        self.quitbutton.pack(side=RIGHT)
 
-        self.selectbutton = Button (self.frame, text="SELECT", command=self.selectpic)
+        self.selectbutton = Button (self.frame, text="SELECT", command=self.selectpic, height=10, width=10)
         self.selectbutton.pack(side=LEFT)
 
         self.nextbutton = Button (self.frame, text="NEXT", command=self.nextpic)
@@ -77,11 +83,21 @@ class App:
         self.rotatebutton.pack(side=RIGHT)
 
         # Setup a text label to show display image index and anchor it to a string var.
-        self.txtlabel = Label (self.imframe, textvar=self.textstring)
-        self.txtlabel.pack(side=BOTTOM)
-        
+        # self.txtlabel = Label (self.imframe, textvar=self.textstring)
+        # self.txtlabel.pack(side=BOTTOM)
+
+        # Set up a label with entry to take input for Go to a particular photo
+        self.gotolabel = Label (self.txtboxframe, textvar= self.textstring)
+        self.gotolabel.pack(side=RIGHT)
+        self.txtbox = Entry (self.txtboxframe, textvariable=self.photoindex, bd=1, width=4, justify=RIGHT)
+        self.txtbox.bind('<Return>', self.get)
+        self.txtbox.pack(side=LEFT)
+
+        # self.gotobutton = Button (self.frame, text="GO TO", command=self.gotopicture)
+        # self.gotobutton.pack(side=BOTTOM)
+
         # Note that the default pic is un-rotated. Used to toggle thumbnail
-        self.rotated = 0
+        # self.rotated = 0
 
     # Quit button action.
     def quitprog (self):
@@ -111,23 +127,24 @@ class App:
                 self.selected.append (self.curimage)
                 self.selectbutton ["text"] = "UNSELECT"
             else:
-                tkMessageBox.showwarning("Warning", "Already selected!")
+                tkMessageBox.showwarning ("Warning", "Already selected!")
         else:
             self.selected.remove (self.curimage)
             self.selectbutton ["text"] = "SELECT"
 
     def showimage (self):
 
-        if self.rotated:
-            self.image.thumbnail ((512, 768), Image.ANTIALIAS)
-        else:
-            self.image.thumbnail ((768, 512), Image.ANTIALIAS)
+        # if self.rotated:
+        #     self.image.thumbnail ((648, 648), Image.ANTIALIAS)
+        # else:
+        #     self.image.thumbnail ((648, 648), Image.ANTIALIAS)
+        self.image.thumbnail ((648, 648), Image.ANTIALIAS)
         photo = ImageTk.PhotoImage (self.image)
-        self.imlabel = Label (self.imframe, image=photo, height=768, width=768)
+        self.imlabel = Label (self.imframe, image=photo, height=648, width=648)
         self.imlabel.image = photo
         self.imlabel.pack (side=BOTTOM)
         if self.oldimlabel is not None:
-            self.oldimlabel.destroy()
+            self.oldimlabel.destroy ()
         # Save a reference to image label (enables destroying to repaint)
         self.oldimlabel = self.imlabel
 
@@ -136,8 +153,8 @@ class App:
             tkMessageBox.showerror ("Error", "Load images first!")
             return
 
-        self.image = self.image.rotate(90, expand=True)
-        self.rotated = self.rotated ^ 1
+        self.image = self.image.rotate (90, expand=True)
+        # self.rotated = self.rotated ^ 1
         self.showimage ()
 
     def rotatepicright (self):
@@ -145,8 +162,8 @@ class App:
             tkMessageBox.showerror ("Error", "Load images first!")
             return
 
-        self.image = self.image.rotate(-90, expand=True)
-        self.rotated = self.rotated ^ 1
+        self.image = self.image.rotate (-90, expand=True)
+        # self.rotated = self.rotated ^ 1
         self.showimage ()
 
     def firstpic (self):
@@ -158,7 +175,7 @@ class App:
         self.curimage = self.loaded [self.curimgidx]
         self.image = Image.open (str(self.curimage))
         self.showimage ()
-        self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
+        self.photoindex.set( str (self.curimgidx + 1))
         if self.curimage not in self.selected:
             self.selectbutton ["text"] = "SELECT"
         else:
@@ -173,7 +190,7 @@ class App:
         self.curimage = self.loaded [self.curimgidx]
         self.image = Image.open (str(self.curimage))
         self.showimage ()
-        self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
+        self.photoindex.set( str (self.curimgidx + 1))
         if self.curimage not in self.selected:
             self.selectbutton ["text"] = "SELECT"
         else:
@@ -189,7 +206,7 @@ class App:
             self.curimgidx = self.curimgidx - 1
             self.image = Image.open (str(self.curimage))
             self.showimage ()
-            self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
+            self.photoindex.set( str (self.curimgidx + 1))
             if self.curimage not in self.selected:
                 self.selectbutton ["text"] = "SELECT"
             else:
@@ -210,7 +227,7 @@ class App:
             self.curimgidx = self.curimgidx + 1
             self.image = Image.open (str(self.curimage))
             self.showimage ()
-            self.textstring.set( str (self.curimgidx + 1) + "/" + str (self.loadedsize))
+            self.photoindex.set( str (self.curimgidx + 1))
             if self.curimage not in self.selected:
                 self.selectbutton ["text"] = "SELECT"
             else:
@@ -218,6 +235,33 @@ class App:
 
         else:
             tkMessageBox.showwarning ("Warning", "End of dir reached")
+
+    # Get the index of the picture to be shown
+    # Check if the image is there within bound
+    def get (self, event):
+        if not self.loaded:
+            tkMessageBox.showwarning ("Warning", "Load the directory using LOAD button before calling GO TO")
+        else:
+            gotoindex = event.widget.get()
+            #print gotoindex
+            if gotoindex.isdigit() :
+                index = int (gotoindex) - 1
+                #print int(gotoindex)
+                if ((index >= 0) and (index < self.loadedsize)):
+                    self.curimage = self.loaded [index]
+                    self.curimgidx = index
+                    self.image = Image.open (str (self.curimage))
+                    self.showimage()
+                    self.photoindex.set (gotoindex)
+                    if self.curimage not in self.selected:
+                        self.selectbutton ["text"] = "SELECT"
+                    else:
+                        self.selectbutton ["text"] = "UNSELECT"
+                else:
+                    tkMessageBox.showerror("Error", "Invalid Entry!")
+            else:
+                tkMessageBox.showerror("Error", "Invalid Entry!")
+
 
     def loadpic (self):
 
@@ -234,9 +278,10 @@ class App:
         if self.loadedsize is 0:
             tkMessageBox.showwarning ("Warning", "Empty dir; no images")
         else:
+            self.textstring.set ("/" + str (self.loadedsize));
+            self.photoindex.set(str(self.curimgidx + 1))
             self.curimage = self.loaded [self.curimgidx]
             self.image = Image.open (str (self.curimage))
-            self.textstring.set (str (self.curimgidx + 1) + "/" + str (self.loadedsize))
             self.showimage ()
             tkMessageBox.showinfo ("Info", "Loaded %d images!" % self.loadedsize)
 
