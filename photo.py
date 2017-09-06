@@ -54,53 +54,70 @@ class App:
         # Show frame.
         self.txtboxframe.pack(side=BOTTOM)
 
+        # List of all button instances in GUI
+        self.buttonlist = []
+        
         # Setup buttons with actions triggering command=$$$ function.
-        self.loadbutton = Button (self.frame, text="LOAD", command=self.loadpic)
-        self.loadbutton.pack(side=LEFT)
+        self.loadpicbutton = self.createbuttons (self.frame, "LOAD", lambda: self.loadpic (handler=self.buttonHandler), LEFT, 0, state="normal")
+        self.selectbutton = self.createbuttons (self.frame, "SELECT", lambda: self.selectpic (handler=None) , LEFT, 10, state="disabled")
+        self.firstpicbutton = self.createbuttons (self.frame, "FIRST", lambda: self.firstpic (handler=self.buttonHandler), LEFT, 0, state="disabled")
+        self.lastpicbutton = self.createbuttons (self.frame, "LAST", lambda: self.lastpic (handler=self.buttonHandler), LEFT, 0, state="disabled")
+        self.quitprogbutton = self.createbuttons (self.frame, "QUIT",  lambda: self.quitprog (handler=self.newToplevel), RIGHT, 0, state="disabled")
+        self.nextpicbutton = self.createbuttons (self.frame, "NEXT", lambda: self.nextpic (handler=self.buttonHandler), LEFT, 0, state="disabled")
+        self.previouspicbutton = self.createbuttons (self.frame, "PREVIOUS", lambda: self.previouspic (handler=self.buttonHandler), LEFT, 0, state="disabled")
+        self.rotatepicleftbutton = self.createbuttons (self.frame, "ROTATE LEFT", lambda: self.rotatepicleft (handler=None), RIGHT, 0, state="disabled")
+        self.rotatepicrightbutton = self.createbuttons (self.frame, "ROTATE RIGHT", lambda: self.rotatepicright (handler=None), RIGHT, 0, state="disabled")
 
-        self.firstbutton = Button (self.frame, text="FIRST", command=self.firstpic)
-        self.firstbutton.pack(side=LEFT)
-
-        self.lastbutton = Button (self.frame, text="LAST", command=self.lastpic)
-        self.lastbutton.pack(side=LEFT)
-
-        self.quitbutton = Button (self.frame, text="QUIT", command=self.quitprog)
-        self.quitbutton.pack(side=RIGHT)
-
-        self.selectbutton = Button (self.frame, text="SELECT", command=self.selectpic, height=10, width=10)
-        self.selectbutton.pack(side=LEFT)
-
-        self.nextbutton = Button (self.frame, text="NEXT", command=self.nextpic)
-        self.nextbutton.pack(side=LEFT)
-
-        self.previousbutton = Button (self.frame, text="PREVIOUS", command=self.previouspic)
-        self.previousbutton.pack(side=LEFT)
-
-        self.rotatebutton = Button (self.frame, text="ROTATE LEFT", command=self.rotatepicleft)
-        self.rotatebutton.pack(side=RIGHT)
-
-        self.rotatebutton = Button (self.frame, text="ROTATE RIGHT", command=self.rotatepicright)
-        self.rotatebutton.pack(side=RIGHT)
-
-        # Setup a text label to show display image index and anchor it to a string var.
-        # self.txtlabel = Label (self.imframe, textvar=self.textstring)
-        # self.txtlabel.pack(side=BOTTOM)
-
-        # Set up a label with entry to take input for Go to a particular photo
+        # Set up a label with entry to take input for Go-to a particular photo
         self.gotolabel = Label (self.txtboxframe, textvar= self.textstring)
-        self.gotolabel.pack(side=RIGHT)
+        self.gotolabel.pack (side=RIGHT)
         self.txtbox = Entry (self.txtboxframe, textvariable=self.photoindex, bd=1, width=4, justify=RIGHT)
-        self.txtbox.bind('<Return>', self.get)
-        self.txtbox.pack(side=LEFT)
+        self.txtbox.bind ('<Return>', lambda event: self.get (event, handler=self.buttonHandler))
+        self.txtbox.pack (side=LEFT)
 
-        # self.gotobutton = Button (self.frame, text="GO TO", command=self.gotopicture)
-        # self.gotobutton.pack(side=BOTTOM)
+    def createbuttons (self, master, buttonstr, command, side, width, state="normal"):
+        button = Button (master, text=buttonstr, command=command, width=width, state=state)
+        button.pack (side=side)
+        self.buttonlist.append (button)
+        return button
 
-        # Note that the default pic is un-rotated. Used to toggle thumbnail
-        # self.rotated = 0
+    def disablePreviousButton (self):
+      self.previouspicbutton ["state"] = "disabled"
+      return 
+    
+    def enablePreviousButton (self):
+      self.previouspicbutton ["state"] = "normal"
+      return 
+    
+    def disableNextButton (self):
+      self.nextpicbutton ["state"] = "disabled"
+      return 
+    
+    def enableNextButton (self):
+      self.nextpicbutton ["state"] = "normal"
+      return 
+    
+    def buttonHandler (self):
+        if (self.curimgidx == 0):
+          self.disablePreviousButton ()
+        else:
+          self.enablePreviousButton ()
+        if (self.curimgidx == self.loadedsize-1):
+          self.disableNextButton ()
+        else:
+          self.enableNextButton ()
+    
+    def newToplevel (self):
+      childwindow = Toplevel ()
+      label = Label (childwindow, text="HELLO")
+      label.pack (side=TOP)
 
     # Quit button action.
-    def quitprog (self):
+    def quitprog (self, handler=None):
+
+        if (handler is not None):
+          handler()
+ 
         # If selected list is not empty, prompt user for location to save list of selected images & append to it.
         if self.selected:
             self.out_file_path_str = tkFileDialog.askdirectory (title='Choose target dir to store selected files')
@@ -110,27 +127,30 @@ class App:
             self.out_file_path_str = os.path.join (self.out_file_path_str, 'selected_photos.txt')
             with open (self.out_file_path_str, "a") as f:
                 for n in self.selected:
-                    f.write (n+"\n")
+                    f.write (self.loaded [n]+"\n")
 
         # Quit program.
         self.frame.quit ()
 
     # Select button action.
-    def selectpic (self):
+    def selectpic (self, handler=None):
         # Handle error condition: No images loaded yet.
         if (self.curimage is None):
             tkMessageBox.showerror ("Error", "Load images first!")
             return
         # If selected, add to list if not previously added.
         if self.selectbutton ["text"] == "SELECT":
-            if self.curimage not in self.selected:
-                self.selected.append (self.curimage)
+            if self.curimgidx not in self.selected:
+                self.selected.append (self.curimgidx)
                 self.selectbutton ["text"] = "UNSELECT"
             else:
                 tkMessageBox.showwarning ("Warning", "Already selected!")
         else:
-            self.selected.remove (self.curimage)
+            self.selected.remove (self.curimgidx)
             self.selectbutton ["text"] = "SELECT"
+
+        if (handler is not None):
+          handler()
 
     def showimage (self):
 
@@ -148,25 +168,28 @@ class App:
         # Save a reference to image label (enables destroying to repaint)
         self.oldimlabel = self.imlabel
 
-    def rotatepicleft (self):
+    def rotatepicleft (self, handler=None):
         if (self.curimage is None):
             tkMessageBox.showerror ("Error", "Load images first!")
             return
 
         self.image = self.image.rotate (90, expand=True)
-        # self.rotated = self.rotated ^ 1
         self.showimage ()
+        if (handler is not None):
+          handler()
 
-    def rotatepicright (self):
+    def rotatepicright (self, handler=None):
         if (self.curimage is None):
             tkMessageBox.showerror ("Error", "Load images first!")
             return
 
         self.image = self.image.rotate (-90, expand=True)
-        # self.rotated = self.rotated ^ 1
         self.showimage ()
+        if (handler is not None):
+          handler()
 
-    def firstpic (self):
+
+    def firstpic (self, handler=None):
         if (self.curimage is None):
             tkMessageBox.showerror ("Error", "Load images first!")
             return
@@ -175,13 +198,15 @@ class App:
         self.curimage = self.loaded [self.curimgidx]
         self.image = Image.open (str(self.curimage))
         self.showimage ()
-        self.photoindex.set( str (self.curimgidx + 1))
-        if self.curimage not in self.selected:
+        self.photoindex.set (str (self.curimgidx + 1))
+        if self.curimgidx not in self.selected:
             self.selectbutton ["text"] = "SELECT"
         else:
             self.selectbutton ["text"] = "UNSELECT"
+        if (handler is not None):
+          handler()
 
-    def lastpic (self):
+    def lastpic (self, handler=None):
         if (self.curimage is None):
             tkMessageBox.showerror ("Error", "Load images first!")
             return
@@ -191,12 +216,14 @@ class App:
         self.image = Image.open (str(self.curimage))
         self.showimage ()
         self.photoindex.set( str (self.curimgidx + 1))
-        if self.curimage not in self.selected:
+        if self.curimgidx not in self.selected:
             self.selectbutton ["text"] = "SELECT"
         else:
             self.selectbutton ["text"] = "UNSELECT"
+        if (handler is not None):
+          handler()
 
-    def previouspic (self):
+    def previouspic (self, handler=None):
         if (self.curimage is None):
             tkMessageBox.showerror ("Error", "Load images first!")
             return
@@ -207,16 +234,16 @@ class App:
             self.image = Image.open (str(self.curimage))
             self.showimage ()
             self.photoindex.set( str (self.curimgidx + 1))
-            if self.curimage not in self.selected:
+            if self.curimgidx not in self.selected:
                 self.selectbutton ["text"] = "SELECT"
             else:
                 self.selectbutton ["text"] = "UNSELECT"
 
-        else:
-            tkMessageBox.showwarning ("Warning", "No previous images")
+        if (handler is not None):
+          handler()
         return
 
-    def nextpic (self):
+    def nextpic (self, handler=None):
         self.rotated = 0
         if (self.curimage is None):
             tkMessageBox.showerror ("Error", "Load images first!")
@@ -228,17 +255,16 @@ class App:
             self.image = Image.open (str(self.curimage))
             self.showimage ()
             self.photoindex.set( str (self.curimgidx + 1))
-            if self.curimage not in self.selected:
+            if self.curimgidx not in self.selected:
                 self.selectbutton ["text"] = "SELECT"
             else:
                 self.selectbutton ["text"] = "UNSELECT"
-
-        else:
-            tkMessageBox.showwarning ("Warning", "End of dir reached")
-
+       
+        if (handler is not None):
+          handler()
     # Get the index of the picture to be shown
     # Check if the image is there within bound
-    def get (self, event):
+    def get (self, event, handler=None):
         if not self.loaded:
             tkMessageBox.showwarning ("Warning", "Load the directory using LOAD button before calling GO TO")
         else:
@@ -253,19 +279,21 @@ class App:
                     self.image = Image.open (str (self.curimage))
                     self.showimage()
                     self.photoindex.set (gotoindex)
-                    if self.curimage not in self.selected:
+                    if self.curimgidx not in self.selected:
                         self.selectbutton ["text"] = "SELECT"
                     else:
                         self.selectbutton ["text"] = "UNSELECT"
+                    if handler is not None:
+                      handler()
                 else:
                     tkMessageBox.showerror("Error", "Invalid Entry!")
             else:
                 tkMessageBox.showerror("Error", "Invalid Entry!")
 
 
-    def loadpic (self):
+    def loadpic (self, handler=None):
 
-        self.file_path_str = tkFileDialog.askdirectory (title='Choose image dir')
+        self.file_path_str = tkFileDialog.askdirectory (title='Select images directory')
         if not self.file_path_str:
             tkMessageBox.showerror ("Error", "Choose valid dir")
             return
@@ -273,18 +301,25 @@ class App:
         self.loaded = [os.path.join (self.file_path_str, f) for f in os.listdir (self.file_path_str) if (f.lower().endswith ('gif') or
                     f.lower().endswith ('bmp') or f.lower().endswith ('jpg') or
                     f.lower().endswith ('jpeg')) ]
+
         self.loadedsize = len (self.loaded)
         self.curimgidx = 0
         if self.loadedsize is 0:
             tkMessageBox.showwarning ("Warning", "Empty dir; no images")
+            return 
         else:
             self.textstring.set ("/" + str (self.loadedsize));
             self.photoindex.set(str(self.curimgidx + 1))
             self.curimage = self.loaded [self.curimgidx]
             self.image = Image.open (str (self.curimage))
             self.showimage ()
-            tkMessageBox.showinfo ("Info", "Loaded %d images!" % self.loadedsize)
+            # tkMessageBox.showinfo ("Info", "Loaded %d images!" % self.loadedsize)
 
+        for button in self.buttonlist:
+          button["state"] = "normal" 
+
+        if (handler is not None):
+          handler()
 
 root = Tk()
 root.wm_title ("Photo Manager")
