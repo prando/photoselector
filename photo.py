@@ -71,7 +71,7 @@ class App:
         # Set up a label with entry to take input for Go-to a particular photo
         self.gotolabel = Label (self.txtboxframe, textvar= self.textstring)
         self.gotolabel.pack (side=RIGHT)
-        self.txtbox = Entry (self.txtboxframe, textvariable=self.photoindex, bd=1, width=4, justify=RIGHT)
+        self.txtbox = Entry (self.txtboxframe, textvariable=self.photoindex, bd=1, width=4, justify=RIGHT, state="disabled")
         self.txtbox.bind ('<Return>', lambda event: self.get (event, handler=self.buttonHandler))
         self.txtbox.pack (side=LEFT)
 
@@ -106,6 +106,7 @@ class App:
           self.disableNextButton ()
         else:
           self.enableNextButton ()
+        self.txtbox ["state"] = "normal"
     
     def newToplevel (self):
       childwindow = Toplevel ()
@@ -286,9 +287,10 @@ class App:
                     if handler is not None:
                       handler()
                 else:
-                    tkMessageBox.showerror("Error", "Invalid Entry!")
+                  self.photoindex.set (self.curimgidx + 1)
             else:
-                tkMessageBox.showerror("Error", "Invalid Entry!")
+              self.photoindex.set (self.curimgidx + 1)
+
 
 
     def loadpic (self, handler=None):
