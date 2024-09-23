@@ -64,6 +64,9 @@ class App:
         self.lastbutton = Button (self.frame, text="LAST", command=self.lastpic)
         self.lastbutton.pack(side=LEFT)
 
+        self.quitbutton = Button (self.frame, text="SAVE", command=self.saveprog)
+        self.quitbutton.pack(side=RIGHT)
+        
         self.quitbutton = Button (self.frame, text="QUIT", command=self.quitprog)
         self.quitbutton.pack(side=RIGHT)
 
@@ -102,18 +105,27 @@ class App:
     # Quit button action.
     def quitprog (self):
         # If selected list is not empty, prompt user for location to save list of selected images & append to it.
-        if self.selected:
-            self.out_file_path_str = tkFileDialog.askdirectory (title='Choose target dir to store selected files')
-            if not self.out_file_path_str:
-                tkMessageBox.showerror ("Error", "Choose valid dir")
-                return
-            self.out_file_path_str = os.path.join (self.out_file_path_str, 'selected_photos.txt')
-            with open (self.out_file_path_str, "a") as f:
-                for n in self.selected:
-                    f.write (n+"\n")
+        self.saveprog()
 
         # Quit program.
         self.frame.quit ()
+
+    def saveprog (self):
+        # If selected list is not empty, prompt user for location to save list of selected images & append to it.
+
+        if self.selected:
+            res = tkMessageBox.askquestion ("Save Selected", "Do you want to save the selected photo list?")
+            if res == 'yes':
+                self.out_file_path_str = tkFileDialog.askdirectory (title='Choose target dir to store selected files')
+                if not self.out_file_path_str:
+                    tkMessageBox.showerror ("Error", "Choose valid dir")
+                    self.saveprog()
+                self.out_file_path_str = os.path.join (self.out_file_path_str, 'selected_photos.txt')
+                with open (self.out_file_path_str, "a") as f:
+                    for n in self.selected:
+                        f.write (n+"\n")
+            else:
+                return
 
     # Select button action.
     def selectpic (self):
@@ -138,7 +150,7 @@ class App:
         #     self.image.thumbnail ((648, 648), Image.ANTIALIAS)
         # else:
         #     self.image.thumbnail ((648, 648), Image.ANTIALIAS)
-        self.image.thumbnail ((648, 648), Image.ANTIALIAS)
+        self.image.thumbnail ((648, 648), Image.Resampling.LANCZOS)
         photo = ImageTk.PhotoImage (self.image)
         self.imlabel = Label (self.imframe, image=photo, height=648, width=648)
         self.imlabel.image = photo
@@ -275,7 +287,7 @@ class App:
                     f.lower().endswith ('jpeg')) ]
         self.loadedsize = len (self.loaded)
         self.curimgidx = 0
-        if self.loadedsize is 0:
+        if self.loadedsize == 0:
             tkMessageBox.showwarning ("Warning", "Empty dir; no images")
         else:
             self.textstring.set ("/" + str (self.loadedsize));
