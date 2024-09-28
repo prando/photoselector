@@ -12,7 +12,8 @@ except ImportError:
     from tkinter import filedialog as tkFileDialog
 
 import os
-
+import shutil
+import copy
 from PIL import Image, ImageTk
 
 class App:
@@ -57,6 +58,9 @@ class App:
         # Setup buttons with actions triggering command=$$$ function.
         self.loadbutton = Button (self.frame, text="LOAD", command=self.loadpic)
         self.loadbutton.pack(side=LEFT)
+        
+        self.loadselectedbutton = Button (self.frame, text="LOAD SELECTED", command=self.loadselectedpic)
+        self.loadselectedbutton.pack(side=LEFT)
 
         self.firstbutton = Button (self.frame, text="FIRST", command=self.firstpic)
         self.firstbutton.pack(side=LEFT)
@@ -124,8 +128,15 @@ class App:
                 with open (self.out_file_path_str, "a") as f:
                     for n in self.selected:
                         f.write (n+"\n")
-            else:
-                return
+            res = tkMessageBox.askquestion ("Save Selected", "Do you want Copy selected photos to a new direcotry?")
+            if res == 'yes':
+                _targetdir = tkFileDialog.askdirectory (title='Choose directory to copy selected photos')
+                if not self.file_path_str:
+                    tkMessageBox.showerror ("Error", "Choose a valid dir")
+                    self.saveprog ()
+
+                for img in self.selected:
+                    shutil.copy (img, _targetdir)
 
     # Select button action.
     def selectpic (self):
@@ -274,17 +285,29 @@ class App:
             else:
                 tkMessageBox.showerror("Error", "Invalid Entry!")
 
+    def loadpichelper (self, isfresh):
+        if isfresh:
+            self.file_path_str = tkFileDialog.askdirectory (title='Choose image dir')
+            if not self.file_path_str:
+                tkMessageBox.showerror ("Error", "Choose valid dir")
+                return
+            self.loaded = [os.path.join (self.file_path_str, f) for f in os.listdir (self.file_path_str) if (f.lower().endswith ('gif') or
+                        f.lower().endswith ('bmp') or f.lower().endswith ('jpg') or
+                        f.lower().endswith ('jpeg')) ]
 
-    def loadpic (self):
+        else:
+            if len (self.selected) == 0:
+                _file = tkFileDialog.askopenfile (title='Choose the text file with the list of selected images')
 
-        self.file_path_str = tkFileDialog.askdirectory (title='Choose image dir')
-        if not self.file_path_str:
-            tkMessageBox.showerror ("Error", "Choose valid dir")
-            return
+                if _file is None:
+                    tkMessageBox.showerror ("Error", "Choose valid file")
+                    return
 
-        self.loaded = [os.path.join (self.file_path_str, f) for f in os.listdir (self.file_path_str) if (f.lower().endswith ('gif') or
-                    f.lower().endswith ('bmp') or f.lower().endswith ('jpg') or
-                    f.lower().endswith ('jpeg')) ]
+                for line in _file:
+                    self.loaded.append (line.rstrip())
+            else:
+                self.loaded = copy.deepcopy (self.selected)
+ 
         self.loadedsize = len (self.loaded)
         self.curimgidx = 0
         if self.loadedsize == 0:
@@ -296,6 +319,14 @@ class App:
             self.image = Image.open (str (self.curimage))
             self.showimage ()
             tkMessageBox.showinfo ("Info", "Loaded %d images!" % self.loadedsize)
+      
+    def loadpic (self):
+
+        self.loadpichelper (True)
+
+    def loadselectedpic (self):
+        
+        self.loadpichelper (False)
 
 
 root = Tk()
