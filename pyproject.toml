@@ -1,0 +1,92 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "photoselector"
+version = "0.1.0"
+description = "Keyboard-first desktop photo culling for large sessions."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12,<3.14"
+authors = [{ name = "PhotoSelector contributors" }]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "pyside6>=6.7",
+  "pillow>=10.4",
+  "pillow-heif>=0.18",
+  "rawpy>=0.23",
+  "keyring>=25.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "pytest-cov>=5.0",
+  "ruff>=0.9",
+  "black>=25.1",
+  "mypy>=1.13",
+  "pre-commit>=4.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "pytest-cov>=5.0",
+  "ruff>=0.9",
+  "black>=25.1",
+  "mypy>=1.13",
+  "pre-commit>=4.0",
+]
+
+[project.scripts]
+photoselector = "photoselector.main:main"
+
+[tool.briefcase]
+project_name = "PhotoSelector"
+bundle = "app.photoselector"
+version = "0.1.0"
+url = "https://cursor.com/codebase/prasaanth-muralidharan/photoselectorenhancement"
+
+[tool.briefcase.app.photoselector]
+formal_name = "PhotoSelector"
+description = "Keyboard-first photo culling"
+sources = ["src/photoselector"]
+icon = "src/photoselector"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/photoselector"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 88
+src = ["src", "tests"]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "C90", "UP"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 8
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["photoselector"]
+
+[[tool.mypy.overrides]]
+module = ["PySide6.*", "rawpy.*", "pillow_heif.*"]
+ignore_missing_imports = true

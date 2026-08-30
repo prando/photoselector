@@ -1,0 +1,83 @@
+QWidget {
+    background-color: #161616;
+    color: #f4f4f4;
+    font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    font-size: 13px;
+}
+
+QMainWindow, QMenuBar, QMenu, QStatusBar {
+    background-color: #161616;
+    color: #f4f4f4;
+}
+
+QMenuBar::item:selected, QMenu::item:selected {
+    background-color: #2d2d2d;
+}
+
+QPushButton {
+    background-color: #2d2d2d;
+    color: #f4f4f4;
+    border: 1px solid #3d3d3d;
+    border-radius: 6px;
+    padding: 8px 14px;
+    min-height: 20px;
+}
+
+QPushButton:hover {
+    background-color: #3a3a3a;
+}
+
+QPushButton:pressed {
+    background-color: #525252;
+}
+
+QPushButton:disabled,
+QPushButton[enabled="false"] {
+    color: #6f6f6f;
+    background-color: #0e0e0e;
+    border: 1px dashed #3d3d3d;
+}
+
+QListView {
+    background-color: #1c1c1c;
+    border: none;
+    outline: none;
+}
+
+QListView::item {
+    padding: 0px;
+}
+
+QListWidget {
+    background-color: #1c1c1c;
+    border: 1px solid #393939;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+QListWidget::item {
+    padding: 6px 8px;
+}
+
+QListWidget::item:selected {
+    background-color: #3d3d3d;
+}
+
+QLabel#title {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+QLabel#hint {
+    color: #c6c6c6;
+}
+
+QFrame#dropZone {
+    border: 1px dashed #6f6f6f;
+    border-radius: 10px;
+    background-color: #1c1c1c;
+}
+
+QLabel#scanned {
+    font-size: 18px;
+}
